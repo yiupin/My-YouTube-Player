@@ -78,24 +78,20 @@ class BMPlayerViewControllerManager: NSObject {
                     return
                 }
                 guard let video = video else { return }
-                
-                for url in video.streamURLs {
-                    print(url)
-                }
-//
+  
                 guard let streamURL = video.streamURLs[XCDYouTubeVideoQuality.medium360.rawValue] ?? video.streamURLs[XCDYouTubeVideoQuality.small240.rawValue] else { fatalError("No stream URL") }
-//
-//                DispatchQueue.global(qos: .background).async {
-//                    let url = streamURL
-//                    if let urlData = NSData(contentsOf: url) {
-//                        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-//                        let filePath="\(documentsPath)/\(vid).mp4"
-//                        DispatchQueue.main.async {
-//                            urlData.write(toFile: filePath, atomically: true)
-//                            compeltion()
-//                        }
-//                    }
-//                }
+
+                DispatchQueue.global(qos: .background).async {
+                    let url = streamURL
+                    if let urlData = NSData(contentsOf: url) {
+                        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+                        let filePath="\(documentsPath)/\(vid).mp4"
+                        DispatchQueue.main.async {
+                            urlData.write(toFile: filePath, atomically: true)
+                            compeltion()
+                        }
+                    }
+                }
             }
         }
     }
