@@ -92,18 +92,6 @@ class PlayerViewController: UIViewController {
         
         player.delegate = self
         
-        // Table View
-        tableView.delegate = self
-        tableView.dataSource = self
-        view.addSubview(tableView)
-        tableView.snp.makeConstraints{ (make) in
-            make.top.equalTo(player.snp.bottom)
-            make.width.equalTo(view)
-            make.height.equalTo(500)
-        }
-        tableView.refreshControl = refreshControl
-        tableView.addSubview(refreshControl)
-        
         // Selection View
         view.addSubview(selectionView)
         if let tabBar = tabBarController?.tabBar {
@@ -138,6 +126,18 @@ class PlayerViewController: UIViewController {
             make.centerY.equalTo(selectionView)
             make.left.equalTo(timerButton.snp.right).offset(10)
         }
+        
+        // Table View
+        tableView.delegate = self
+        tableView.dataSource = self
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints{ (make) in
+            make.top.equalTo(player.snp.bottom)
+            make.width.equalTo(view)
+            make.bottom.equalTo(selectionView.snp.top)
+        }
+        tableView.refreshControl = refreshControl
+        tableView.addSubview(refreshControl)
     }
     
     @objc func toogleLoop() {

@@ -57,7 +57,9 @@ class PlaylistViewController: UIViewController {
         view.backgroundColor = .gray
         
         let edit = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(toggleEditMode))
-        navigationItem.rightBarButtonItems = [edit]
+        
+        let url = UIBarButtonItem(title: "+URL", style: .done, target: self, action: #selector(addFromURL))
+        navigationItem.rightBarButtonItems = [edit, url]
         
         // Table View
         tableView.frame = view.frame
@@ -98,6 +100,57 @@ class PlaylistViewController: UIViewController {
         if sender.title == "Edit" {
             selectionView.isHidden = true
         }
+    }
+    
+    @objc func addFromURL(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(title: "Input URL", message: "", preferredStyle: .alert)
+        alert.addTextField()
+        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { [weak self] action -> Void in
+            guard let strongSelf = self else {
+                return
+            }
+        
+            if let textField = alert.textFields?[0], let text = textField.text {
+                if !text.isEmpty && (text.contains("https://m.youtube.com/watch?v=") || text.contains("https://www.youtube.com/watch?v=")) {
+                    let index = text.index(text.endIndex, offsetBy: -11)
+                    let vid = String(text[index...])
+                    if !vid.isEmpty {
+                        XCDYouTubeClient.default().getVideoWithIdentifier(vid) { (video, error) in
+                            guard error == nil else {
+                                print("error")
+                                return
+                            }
+                            guard let video = video else {
+                                return
+                                
+                            }
+                            
+                            let songModel = SongModel(id: String(vid), name: video.title, isDownloaded: false)
+                            PlaylistFunctions.addSong(id: strongSelf.id, songModel: songModel)
+                            
+                            strongSelf.songs.append(songModel)
+                            strongSelf.tableView.reloadData()
+                            
+                            if let tabBarController = self?.tabBarController {
+                                tabBarController.selectedIndex = 2
+                                if let playerVC = tabBarController.viewControllers?[2] as? PlayerViewController {
+                                    BMPlayerViewControllerManager.shared.play(songModel: songModel)
+                                    playerVC.songs = strongSelf.songs
+                                    playerVC.id = strongSelf.id
+                                    playerVC.songIndex = strongSelf.songs.count-1
+                                    playerVC.checkIsDownloaded()
+                                    playerVC.tableView.reloadData()
+                                }
+                            }
+                            
+                        }
+                    }
+                    
+                }
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     @objc func renameSong() {
@@ -191,8 +244,6 @@ extension PlaylistViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if !tableView.isEditing {
-            let song = Data.playlistModels[PlaylistFunctions.getIndexFromID(id: id)!].songs[indexPath.row]
-            let vid = song.id
             if let tabBarController = tabBarController {
                 tabBarController.selectedIndex = 2
                 if let playerVC = tabBarController.viewControllers?[2] as? PlayerViewController {

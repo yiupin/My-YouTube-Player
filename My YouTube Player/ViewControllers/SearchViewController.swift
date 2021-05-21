@@ -77,9 +77,21 @@ class SearchViewController: UIViewController {
                         
                         let actionSheet = UIAlertController(title: "Add to playlist?", message: video.title, preferredStyle: .actionSheet)
                         for playlistModel in Data.playlistModels {
-                            let action = UIAlertAction(title: playlistModel.name, style: .default, handler: { _ in
+                            let action = UIAlertAction(title: playlistModel.name, style: .default, handler: { [weak self] _ in
                                 let songModel = SongModel(id: String(vid), name: video.title, isDownloaded: false)
                                 PlaylistFunctions.addSong(id: playlistModel.id, songModel: songModel)
+                                
+                                if let tabBarController = self?.tabBarController {
+                                    tabBarController.selectedIndex = 2
+                                    if let playerVC = tabBarController.viewControllers?[2] as? PlayerViewController {
+                                        BMPlayerViewControllerManager.shared.play(songModel: songModel)
+                                        playerVC.songs = playlistModel.songs
+                                        playerVC.id = playlistModel.id
+                                        playerVC.songIndex = playlistModel.songs.count-1
+                                        playerVC.checkIsDownloaded()
+                                        playerVC.tableView.reloadData()
+                                    }
+                                }
                             })
                             actionSheet.addAction(action)
                         }
