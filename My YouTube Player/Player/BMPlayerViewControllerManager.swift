@@ -26,6 +26,8 @@ class BMPlayerViewControllerManager: NSObject {
                 self.player.setVideo(resource: asset)
                 return
             }
+        
+            
             guard let streamURL = video.streamURL else { fatalError("No stream URL")}
             let asset = BMPlayerResource(url: streamURL)
             self.player.setVideo(resource: asset)

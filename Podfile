@@ -7,6 +7,6 @@ target 'My YouTube Player' do
 
   # Pods for My YouTube Player
 pod 'SnapKit'
-pod "XCDYouTubeKit", "~> 2.15"
+pod 'XCDYouTubeKit', git: 'git@github.com:hinge-agency/XCDYouTubeKit.git', branch: 'fix/issue-534- XCDYouTubeVideoErrorDomain-error-code-3'
 pod 'BMPlayer', '~> 1.3.0'
 end
